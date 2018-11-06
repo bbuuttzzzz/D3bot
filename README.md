@@ -1,4 +1,7 @@
 # D3bot
+
+This is a fork of D3bot that I'm modifying to work with tropical ZS. 
+
 This is a fork of [/Azurblau/AzBot](https://github.com/Azurblau/AzBot) with new features and bugfixes.
 
 Here is a list of notable changes compared to the original version:
