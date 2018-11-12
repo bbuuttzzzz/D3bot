@@ -40,7 +40,8 @@ D3bot.SelfRedeemWaveMax = 1				-- The maximum wave a player can respawn (Setting
 D3bot.StartBonus = nil					-- Number of additional points, that players get at the start of a round.
 
 -- Uncomment the name file you want to use. If you comment out all of the name files, standard names will be used (Bot, Bot(2), Bot(3), ...)
-D3bot.BotNameFile = "fng_usernames"
+--D3bot.BotNameFile = "fng_usernames"
 --D3bot.BotNameFile = "bottish"
+D3bot.BotNameFile = "tropical_usernames"
 
 D3bot.BotKickReason = "I did my job. :)"

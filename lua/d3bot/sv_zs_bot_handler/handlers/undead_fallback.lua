@@ -5,7 +5,7 @@ HANDLER.AngOffshoot = 45
 HANDLER.BotTgtFixationDistMin = 250
 HANDLER.BotClasses = {
 	"Zombie", "Fresh Dead", "Bloated Zombie", "Skeletal Walker",
-	"Poison Zombie"
+	"Poison Zombie", "Bot Hunter"
 }
 HANDLER.BotMiniBosses = {
 	"Nightmare", "Butcher", "Fast Zombie"
