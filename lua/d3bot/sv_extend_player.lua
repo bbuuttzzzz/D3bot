@@ -35,14 +35,14 @@ end
 
 function meta:D3bot_CanPounceToPos(pos)
 	if not pos then return end
-	
+
 	local initVel
-	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then
-		initVel = (1 - 0.5 * (self:GetLegDamage() / GAMEMODE.MaxLegDamage)) * self:GetActiveWeapon().PounceVelocity
+	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceAttack then
+		initVel = (1 - 0.5 * (self:GetLegDamage() / GAMEMODE.MaxLegDamage)) * self:GetActiveWeapon().PounceAttack.LeapSpeed
 	else
 		return
 	end
-	
+
 	local selfPos = self:GetPos()--LerpVector(0.75, self:GetPos(), self:EyePos())
 	local trajectories = D3bot.GetTrajectories(initVel, selfPos, pos, 8)
 	local resultTrajectories = {}
@@ -103,6 +103,22 @@ function meta:D3bot_RerollClass(classes)
 	self.DeathClass = zombieClass.Index
 end
 
+function meta:D3bot_RerollMiniboss(classes)
+	local zombieClasses = {}
+	for _, class in ipairs(classes) do
+		local zombieClass = GAMEMODE.ZombieClasses[class]
+		if zombieClass then
+			if not zombieClass.Locked and (zombieClass.Unlocked or zombieClass.Wave <= GAMEMODE:GetWave()) then
+				table.insert(zombieClasses, zombieClass)
+			end
+		end
+	end
+	local zombieClass = table.Random(zombieClasses)
+	if not zombieClass then zombieClass = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
+	--self:SetZombieClass(zombieClass.Index)
+	self:SetSelectedMiniBossClass(zombieClass.Index)
+end
+
 function meta:D3bot_ResetTgt() -- Reset all kind of targets
 	local mem = self.D3bot_Mem
 	mem.TgtOrNil, mem.DontAttackTgt, mem.TgtProximity = nil, nil, nil
@@ -137,9 +153,9 @@ end
 function meta:D3bot_InitializeOrReset()
 	self.D3bot_Mem = self.D3bot_Mem or {}
 	local mem = self.D3bot_Mem
-	
+
 	local considerPathLethality = math.random(1, D3bot.BotConsideringDeathCostAntichance) == 1
-	
+
 	mem.TgtOrNil = nil										-- Target entity to walk to and attack
 	mem.PosTgtOrNil = nil									-- Target position to walk to
 	mem.NodeTgtOrNil = nil									-- Target node
@@ -150,12 +166,12 @@ function meta:D3bot_InitializeOrReset()
 	mem.ConsidersPathLethality = considerPathLethality		-- If true, the bot will consider lethality of the paths
 	mem.Angs = Angle()										-- Current angle, used to smooth out movement
 	mem.AngsOffshoot = Angle()								-- Offshoot angle, to make bots movement more random
-	
-	mem.DontAttackTgt = nil									-- 
-	mem.TgtProximity = nil									-- 
-	mem.PosTgtProximity = nil								-- 
-	mem.NextCheckStuck = nil								-- 
-	mem.MajorStuckCounter = nil								-- 
+
+	mem.DontAttackTgt = nil									--
+	mem.TgtProximity = nil									--
+	mem.PosTgtProximity = nil								--
+	mem.NextCheckStuck = nil								--
+	mem.MajorStuckCounter = nil								--
 end
 
 function meta:D3bot_Deinitialize()
@@ -190,7 +206,7 @@ function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 	mem.TgtNodeOrNil = mem.NodeTgtOrNil or mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil and mem.TgtOrNil:GetPos() or mem.PosTgtOrNil)
 	if not node or not mem.TgtNodeOrNil then return end
 	local abilities = {Walk = true}
-	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
+	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceAttack then abilities.Pounce = true end
 	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities)
 	if not path then
 		local handler = findHandler(self:GetZombieClass(), self:Team())
@@ -229,16 +245,16 @@ function meta:D3bot_CheckStuck()
 	else
 		return
 	end
-	
+
 	local posList = self.D3bot_PosList
 	if not posList then return end
-	
+
 	local pos_1, pos_2, pos_10 = posList[1], posList[2], posList[10]
-	
+
 	local minorStuck = pos_1 and pos_2 and pos_1:Distance(pos_2) < 1		-- Stuck on ladder
 	local preMajorStuck = pos_1 and pos_10 and pos_1:Distance(pos_10) < 300	-- Running circles, some obstacles in the way, ...
 	local majorStuck
-	
+
 	if preMajorStuck and (not self.D3bot_LastDamage or self.D3bot_LastDamage < CurTime() - 5) then
 		mem.MajorStuckCounter = mem.MajorStuckCounter and mem.MajorStuckCounter + 1 or 1
 		if mem.MajorStuckCounter > 15 then
@@ -247,6 +263,6 @@ function meta:D3bot_CheckStuck()
 	else
 		mem.MajorStuckCounter = nil
 	end
-	
+
 	return minorStuck, majorStuck
 end

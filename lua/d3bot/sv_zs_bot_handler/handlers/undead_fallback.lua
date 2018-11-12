@@ -4,13 +4,11 @@ local HANDLER = D3bot.Handlers.Undead_Fallback
 HANDLER.AngOffshoot = 45
 HANDLER.BotTgtFixationDistMin = 250
 HANDLER.BotClasses = {
-	"Zombie", "Zombie", "Zombie",
-	"Ghoul",
-	"Wraith", "Wraith", "Wraith",
-	"Bloated Zombie", "Bloated Zombie", "Bloated Zombie",
-	"Fast Zombie", "Fast Zombie", "Fast Zombie", "Fast Zombie",
-	"Poison Zombie", "Poison Zombie", "Poison Zombie",
-	"Zombine", "Zombine", "Zombine", "Zombine", "Zombine"
+	"Zombie", "Fresh Dead", "Bloated Zombie", "Skeletal Walker",
+	"Poison Zombie"
+}
+HANDLER.BotMiniBosses = {
+	"Nightmare", "Butcher", "Fast Zombie"
 }
 
 HANDLER.Fallback = true
@@ -21,21 +19,21 @@ end
 function HANDLER.UpdateBotCmdFunction(bot, cmd)
 	cmd:ClearButtons()
 	cmd:ClearMovement()
-	
+
 	-- Fix knocked down bots from sliding around. (Workaround for the NoxiousNet codebase, as ply:Freeze() got removed from status_knockdown, status_revive, ...)
 	if bot.KnockedDown and IsValid(bot.KnockedDown) or bot.Revive and IsValid(bot.Revive) then
 		return
 	end
-	
+
 	if not bot:Alive() then
 		-- Get back into the game
 		cmd:SetButtons(IN_ATTACK)
 		return
 	end
-	
+
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
-	
+
 	local result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.PounceAuto(bot)
 	if not result then
 		result, actions, forwardSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
@@ -43,14 +41,14 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 			return
 		end
 	end
-	
+
 	local buttons
 	if actions then
 		buttons = bit.bor(actions.Forward and IN_FORWARD or 0, actions.Backward and IN_BACKWARD or 0, actions.Attack and IN_ATTACK or 0, actions.Attack2 and IN_ATTACK2 or 0, actions.Duck and IN_DUCK or 0, actions.Jump and IN_JUMP or 0, actions.Use and IN_USE or 0)
 	end
-	
+
 	if majorStuck and GAMEMODE:GetWaveActive() then bot:Kill() end
-	
+
 	bot:SetEyeAngles(aimAngle)
 	cmd:SetViewAngles(aimAngle)
 	cmd:SetForwardMove(forwardSpeed)
@@ -59,9 +57,9 @@ end
 
 function HANDLER.ThinkFunction(bot)
 	local mem = bot.D3bot_Mem
-	
+
 	local botPos = bot:GetPos()
-	
+
 	if mem.nextUpdateSurroundingPlayers and mem.nextUpdateSurroundingPlayers < CurTime() or not mem.nextUpdateSurroundingPlayers then
 		if not mem.TgtOrNil or IsValid(mem.TgtOrNil) and mem.TgtOrNil:GetPos():Distance(botPos) > HANDLER.BotTgtFixationDistMin then
 			mem.nextUpdateSurroundingPlayers = CurTime() + 1
@@ -77,19 +75,19 @@ function HANDLER.ThinkFunction(bot)
 			end
 		end
 	end
-	
+
 	if mem.nextCheckTarget and mem.nextCheckTarget < CurTime() or not mem.nextCheckTarget then
 		mem.nextCheckTarget = CurTime() + 1
 		if not HANDLER.CanBeTgt(bot, mem.TgtOrNil) then
 			HANDLER.RerollTarget(bot)
 		end
 	end
-	
+
 	if mem.nextUpdateOffshoot and mem.nextUpdateOffshoot < CurTime() or not mem.nextUpdateOffshoot then
 		mem.nextUpdateOffshoot = CurTime() + 0.4 + math.random() * 0.2
 		bot:D3bot_UpdateAngsOffshoot(HANDLER.AngOffshoot)
 	end
-	
+
 	local function pathCostFunction(node, linkedNode, link)
 		local linkMetadata = D3bot.LinkMetadata[link]
 		local linkPenalty = linkMetadata and linkMetadata.ZombieDeathCost or 0
@@ -117,7 +115,10 @@ end
 
 function HANDLER.OnDeathFunction(bot)
 	--bot:Say("rip me!")
-	bot:D3bot_RerollClass(HANDLER.BotClasses) -- TODO: Situation depending reroll of the zombie class
+	bot:D3bot_RerollClass(HANDLER.BotClasses)
+
+	bot:D3bot_RerollMiniboss(HANDLER.BotMiniBosses)
+
 	HANDLER.RerollTarget(bot)
 end
 
