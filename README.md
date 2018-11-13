@@ -1,4 +1,8 @@
 This is a fork of D3bot that I'm modifying to work with tropical ZS.
+- leaping variables are stored in a different place, so I changed all references to match
+- added support for bots to get picked as miniboss
+- new set of playable classes for bots specific to the gamemode
+- new nicknames that are more obviously bot names (of the form "BOT something")
 
 # D3bot 
 
