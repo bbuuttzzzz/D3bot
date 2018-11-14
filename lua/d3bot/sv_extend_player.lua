@@ -100,7 +100,7 @@ function meta:D3bot_RerollClass(classes)
 	local zombieClass = table.Random(zombieClasses)
 	if not zombieClass then zombieClass = GAMEMODE.ZombieClasses[GAMEMODE.DefaultZombieClass] end
 	--self:SetZombieClass(zombieClass.Index)
-	self.DeathClass = zombieClass.Index
+	self:SetSelectedZombieClass(zombieClass.Index)
 end
 
 function meta:D3bot_RerollMiniboss(classes)
