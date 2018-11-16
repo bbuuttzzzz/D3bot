@@ -192,7 +192,7 @@ function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 	local abilities = {Walk = true}
 	if self:GetActiveWeapon() then
 		if self:GetActiveWeapon().PounceVelocity then abilities.Pounce = true end
-		if self:GetActiveWeapon().GetClimbing then abilities.Climb = true end
+		if self:GetActiveWeapon().CanClimb then abilities.Climb = true end
 	end
 	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities)
 	if not path then
