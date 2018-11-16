@@ -182,7 +182,7 @@ function meta:D3bot_UpdateAngsOffshoot(angOffshoot)
 	local mem = self.D3bot_Mem
 	local nodeOrNil = mem.NodeOrNil
 	local nextNodeOrNil = mem.NextNodeOrNil
-	if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and nextNodeOrNil.Params.AimTo == "Straight") then
+	if (nodeOrNil and nodeOrNil.Params.Aim == "Straight") or (nextNodeOrNil and (nextNodeOrNil.Params.AimTo == "Straight" or nextNodeOrNil.Params.ClimbTo == "Needed")) then
 		mem.AngsOffshoot = Angle()
 		return
 	end
@@ -206,7 +206,10 @@ function meta:D3bot_UpdatePath(pathCostFunction, heuristicCostFunction)
 	mem.TgtNodeOrNil = mem.NodeTgtOrNil or mapNavMesh:GetNearestNodeOrNil(mem.TgtOrNil and mem.TgtOrNil:GetPos() or mem.PosTgtOrNil)
 	if not node or not mem.TgtNodeOrNil then return end
 	local abilities = {Walk = true}
-	if self:GetActiveWeapon() and self:GetActiveWeapon().PounceAttack then abilities.Pounce = true end
+	if self:GetActiveWeapon() then
+		if self:GetActiveWeapon().PounceAttack then abilities.Pounce = true end
+		if self:GetActiveWeapon().CanClimb then abilities.Climb = true end
+	end
 	local path = D3bot.GetBestMeshPathOrNil(node, mem.TgtNodeOrNil, pathCostFunction, heuristicCostFunction, abilities)
 	if not path then
 		local handler = findHandler(self:GetZombieClass(), self:Team())
