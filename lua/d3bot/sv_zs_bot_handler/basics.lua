@@ -27,17 +27,17 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 
 	local origin = bot:GetPos()
 	local actions = {}
-	
+
 	local sideSpeed
-	
+
 	-- Check if the bot needs to climb while being on a node or going towards a node. As maneuvering while climbing is different, this will change/override some movement actions.
 	local shouldClimb = (nodeOrNil and nodeOrNil.Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed")
-	
+
 	-- Make bot aim straight when outside of current node area This should prevent falling down edges.
 	local aimStraight
 	if nodeOrNil and not nodeOrNil:GetContains(origin, nil) then aimStraight = true end
 	if shouldClimb then
-		if bot:GetActiveWeapon() and bot:GetActiveWeapon().GetClimbing and bot:GetActiveWeapon():GetClimbing() and bot:GetActiveWeapon().GetClimbSurface then
+		if bot:GetActiveWeapon() and bot:GetActiveWeapon().IsClimbing and bot:GetActiveWeapon():IsClimbing() and bot:GetActiveWeapon().GetClimbSurface then
 			local tr = bot:GetActiveWeapon():GetClimbSurface()
 			if tr.Hit then
 				bot:D3bot_FaceTo(origin - tr.HitNormal, origin, D3bot.BotAngLerpFactor, 0)
@@ -48,7 +48,7 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 	else
 		bot:D3bot_FaceTo(pos, origin, aimStraight and 1 or D3bot.BotAngLerpFactor, aimStraight and 0 or 1)
 	end
-	
+
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
@@ -130,13 +130,13 @@ function D3bot.Basics.Walk(bot, pos, slowdown, proximity) -- 'pos' should be ins
 
 	actions.Attack = facesHindrance
 	actions.Use = actions.Use or facesHindrance
-	
+
 	if speed > 0 then actions.MoveForward = true end
 	if speed < 0 then actions.MoveBackward = true end
-	
+
 	if sideSpeed and sideSpeed > 0 then actions.MoveRight = true end
 	if sideSpeed and sideSpeed < 0 then actions.MoveLeft = true end
-	
+
 	return true, actions, speed, sideSpeed, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
 end
 
@@ -150,10 +150,10 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	local aimPos, origin
 	local actions = {}
 	local facesTgt = false
-	
+
 	-- Check if the bot needs to climb while being on a node or going towards a node. If so, ignore everything else, and use Basics.WalkAuto, which will handle everything fine. TODO: Put everything into its own basics function
 	local shouldClimb = (nodeOrNil and nodeOrNil.Params.Climbing == "Needed") or (nextNodeOrNil and nextNodeOrNil.Params.Climbing == "Needed")
-	
+
 	-- TODO: Reduce can see target calls
 	if shouldClimb and nextNodeOrNil then
 		return D3bot.Basics.Walk(bot, nextNodeOrNil.Pos)
@@ -191,7 +191,7 @@ function D3bot.Basics.WalkAttackAuto(bot)
 	if aimPos then
 		bot:D3bot_FaceTo(aimPos, origin, D3bot.BotAttackAngLerpFactor, facesTgt and 0.2 or 1)
 	end
-	
+
 	local duckParam = nodeOrNil and nodeOrNil.Params.Duck
 	local duckToParam = nextNodeOrNil and nextNodeOrNil.Params.DuckTo
 	local jumpParam = nodeOrNil and nodeOrNil.Params.Jump
@@ -257,9 +257,9 @@ function D3bot.Basics.WalkAttackAuto(bot)
 
 	actions.Attack = facesTgt or facesHindrance
 	actions.Use = actions.Use or facesHindrance
-	
+
 	actions.MoveForward = true
-	
+
 	return true, actions, speed, nil, nil, mem.Angs, minorStuck, majorStuck, facesHindrance
 end
 
@@ -331,7 +331,7 @@ function D3bot.Basics.PounceAuto(bot)
 			mem.pounceFlightTime = nil
 			bot:D3bot_UpdatePathProgress()
 		end
-		
+
 		return true, actions, 0, nil, nil, mem.Angs, false
 	end
 
@@ -376,7 +376,7 @@ function D3bot.Basics.AimAndShoot(bot, target, maxDistance)
 	if targetPos and canShootTarget then
 		bot:D3bot_FaceTo(targetPos, origin, D3bot.BotAimAngLerpFactor, 0)
 	end
-	
+
 	return true, actions, 0, nil, nil, mem.Angs, false
 end
 
@@ -391,6 +391,6 @@ function D3bot.Basics.LookAround(bot)
 	local origin = bot:D3bot_GetViewCenter()
 
 	bot:D3bot_FaceTo(mem.LookTarget:D3bot_GetViewCenter(), origin, D3bot.BotAngLerpFactor * 0.3, 0)
-	
+
 	return true, nil, 0, nil, nil, mem.Angs, false
 end
