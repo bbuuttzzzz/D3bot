@@ -50,5 +50,6 @@ D3bot.Names = {
   "BOT Starlight",
   "BOT Warden",
   "BOT Wizard",
-  "BOT Zephyr"
+  "BOT Zephyr",
+  "BOT Nathandiel"
 }
