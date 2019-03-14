@@ -8,7 +8,7 @@ HANDLER.BotClasses = {
 	"Poison Zombie", "hunterbot"
 }
 HANDLER.BotMiniBosses = {
-	"Nightmare", "Butcher", "Fast Zombie"
+	"Nightmare", "Butcher", "Tar Zombie", "Fast Zombie", "Fast Zombie"
 }
 
 HANDLER.Fallback = true
@@ -33,7 +33,7 @@ function HANDLER.UpdateBotCmdFunction(bot, cmd)
 
 	bot:D3bot_UpdatePathProgress()
 	D3bot.Basics.SuicideOrRetarget(bot)
-	
+
 	local result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.PounceAuto(bot)
 	if not result then
 		result, actions, forwardSpeed, sideSpeed, upSpeed, aimAngle, minorStuck, majorStuck, facesHindrance = D3bot.Basics.WalkAttackAuto(bot)
