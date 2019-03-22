@@ -6,13 +6,13 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 		pl:PrintMessage(HUD_PRINTCENTER, hint)
 		pl:ChatPrint(hint)
 	end)
-	
+
 	function ulx.giveHumanLoadout(pl)
 		pl:Give("weapon_zs_fists")
 		pl:Give("weapon_zs_peashooter")
 		pl:GiveAmmo(50, "pistol")
 	end
-	
+
 	function ulx.tryBringToHumans(pl)
 		local potSpawnTgts = team.GetPlayers(TEAM_HUMAN)
 		for i = 1, 5 do
@@ -29,7 +29,7 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			end
 		end
 	end
-	
+
 	local nextByPl = {}
 	local tierByPl = {}
 	function ulx.human(pl)
@@ -317,8 +317,9 @@ if engine.ActiveGamemode() == "zombiesurvival" then
 			end
 		end
 	end)
-	
+
 	registerSuperadminCmd("Control", plsParam, function(caller, pls) for k, pl in pairs(pls) do pl:D3bot_InitializeOrReset() end end)
+	registerSuperadminCmd("SoftControl", plsParam, function(caller, pls) for k, pl in pairs(pls) do pl:D3bot_InitializeOrReset(true) end end)
 	registerSuperadminCmd("Uncontrol", plsParam, function(caller, pls) for k, pl in pairs(pls) do pl:D3bot_Deinitialize() end end)
 end
 

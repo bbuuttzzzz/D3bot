@@ -11,7 +11,7 @@ function findHandler(zombieClass, team)
 	if handlerLookup[team] and handlerLookup[team][zombieClass] then -- TODO: Put cached handler into bot object
 		return handlerLookup[team][zombieClass]
 	end
-	
+
 	for _, fallback in ipairs({false, true}) do
 		for _, handler in pairs(D3bot.Handlers) do
 			if handler.Fallback == fallback and handler.SelectorFunction(GAMEMODE.ZombieClasses[zombieClass].Name, team) then
@@ -24,12 +24,22 @@ function findHandler(zombieClass, team)
 end
 local findHandler = findHandler
 
+local function shouldCancelSoftControl(pl, cmd)
+	--if the real human at the computer moves their mouse, pressed WASD, or one of
+	--a few other buttons they should get uncontrolled
+	return (cmd:GetMouseX() ~= 0 or cmd:GetMouseY() ~= 0
+		or cmd:GetSideMove() ~= 0 or cmd:GetForwardMove() ~= 0
+		or cmd:GetButtons() ~= 0)
+end
+
 hook.Add("StartCommand", D3bot.BotHooksId, function(pl, cmd)
 	if D3bot.IsEnabled and pl.D3bot_Mem then
-		
-		local handler = findHandler(pl:GetZombieClass(), pl:Team())
-		handler.UpdateBotCmdFunction(pl, cmd)
-		
+		if pl.D3bot_Mem.SoftControl and shouldCancelSoftControl(pl, cmd) then
+			pl:D3bot_Deinitialize()
+		else
+			local handler = findHandler(pl:GetZombieClass(), pl:Team())
+			handler.UpdateBotCmdFunction(pl, cmd)
+		end
 	end
 end)
 
@@ -38,13 +48,13 @@ local NextSupervisor🤔 = CurTime()
 local NextStorePos = CurTime()
 hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 	if not D3bot.IsEnabled then return end
-	
+
 	-- General bot handler think function
 	if NextBot🤔 < CurTime() then
 		NextBot🤔 = CurTime() + 0.1
-		
+
 		for _, bot in ipairs(D3bot.GetBots()) do
-			
+
 			-- Hackish method to get bots back into game. (player.CreateNextBot created bots do not trigger the StartCommand hook while they are dead)
 			if not bot:OldAlive() then
 				gamemode.Call("PlayerDeathThink", bot)
@@ -57,19 +67,19 @@ hook.Add("Think", D3bot.BotHooksId.."🤔", function()
 					end
 				end
 			end
-			
+
 			local handler = findHandler(bot:GetZombieClass(), bot:Team())
 			handler.ThinkFunction(bot)
 		end
-		
+
 	end
-	
+
 	-- Supervisor think function
 	if NextSupervisor🤔 < CurTime() then
 		NextSupervisor🤔 = CurTime() + 0.1
 		D3bot.SupervisorThinkFunction()
 	end
-	
+
 	-- Store history of all players (For behaviour classification, stuck checking)
 	if NextStorePos < CurTime() then
 		NextStorePos = CurTime() + 1
