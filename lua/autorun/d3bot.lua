@@ -32,7 +32,7 @@ if SERVER then
 	include("d3bot/sv_extend_player.lua")
 	include("d3bot/sv_debug.lua")
 	
-	if engine.ActiveGamemode() == "zombiesurvival" then
+	if string.match(engine.ActiveGamemode(), "^zombiesurvival") then
 		include("d3bot/sv_zs_bot_handler/node_metadata.lua")
 		include("d3bot/sv_zs_bot_handler/supervisor.lua")
 		include("d3bot/sv_zs_bot_handler/handle.lua")
