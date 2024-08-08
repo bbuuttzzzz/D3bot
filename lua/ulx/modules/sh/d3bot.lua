@@ -305,7 +305,7 @@ end)
 
 registerAdminCmd("CheckNavmesh", function(caller)
 	if not D3bot.CheckMapNavMesh(D3bot.MapNavMeshPath) then
-		caller:ChatPrint("Couldn't find map @" .. D3bot.MapNavMeshPath")
+		caller:ChatPrint("Couldn't find map @" .. D3bot.MapNavMeshPath)
 	else
 		caller:ChatPrint("found map @" .. D3bot.MapNavMeshPath")
 	end
