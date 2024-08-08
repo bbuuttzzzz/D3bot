@@ -303,6 +303,14 @@ registerAdminCmd("ReloadExtraProps", function(caller)
 	caller:ChatPrint("Reloaded.")
 end)
 
+registerAdminCmd("CheckNavmesh", function(caller)
+	if not D3bot.CheckMapNavMesh(D3bot.MapNavMeshPath) then
+		caller:ChatPrint("Couldn't find map @" .. D3bot.MapNavMeshPath")
+	else
+		caller:ChatPrint("found map @" .. D3bot.MapNavMeshPath")
+	end
+end)
+
 if string.match(engine.ActiveGamemode(), "^zombiesurvival") then
 	registerAdminCmd("ForceClass", strRestParam, function(caller, className)
 		for classKey, class in ipairs(GAMEMODE.ZombieClasses) do
